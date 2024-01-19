@@ -1,13 +1,12 @@
 <template>
     <img class="logo" src="../assets/chat-app-logo.avif">
-    <h1>Sign Up</h1>
-    <div class="register">
-        <input type="text" v-model="name" placeholder="Enter Name" />
+    <h1>Login</h1>
+    <div class="login">
         <input type="email" v-model="email" placeholder="Enter Email" />
         <input type="password" v-model="password" placeholder="Enter Password" />
-        <button v-on:click="signUp">Sign Up</button>
+        <button v-on:click="login">Login</button>
         <p>
-            Already registered? <router-link to="/login">Login</router-link>
+            Go to <router-link to="/signup">Sign Up</router-link>
         </p>
     </div>
 </template>
@@ -15,25 +14,24 @@
 <script>
 
 export default {
-    name: "SignUp",
+    name: "LogIn",
     data() {
         return {
-            name: '',
             email: '',
             password: '',
         }
     },
     methods: {
-        async signUp() {
+        login() {
             const result = {
                 data:{
-                    name: this.name,
                     email: this.email,
                     password: this.password,
                 },
-                status: 201,
+                status: 200,
             }
-            if(result.status == 201) {
+
+            if(result.status == 200 && result.data) {
                 localStorage.setItem("user_info", JSON.stringify(result.data));
                 this.$router.push({ name: "DashBoard" });
             }
@@ -48,5 +46,3 @@ export default {
 }
 </script>
 
-<style>
-</style>
