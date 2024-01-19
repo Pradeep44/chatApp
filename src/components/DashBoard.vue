@@ -1,11 +1,16 @@
 <template>
+<Header/>
     <h1>Dashboard</h1>
 </template>
 
 <script>
+import Header from './Header.vue';
 
 export default {
     name:"DashBoard",
+    components:{
+        Header,
+    },
     mounted() {
         let user = localStorage.getItem('user_info');
         if(!user) {
