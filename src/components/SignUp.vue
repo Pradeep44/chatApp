@@ -31,8 +31,8 @@ export default {
                 status: 201,
             }
             if(result.status == 201) {
-                alert("Sign up successful");
                 localStorage.setItem("user_info", JSON.stringify(result.data));
+                this.$router.push({ name: "DashBoard" });
             }
         }
     }
