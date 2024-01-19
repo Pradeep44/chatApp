@@ -1,14 +1,20 @@
 <template>
     <div class="nav">
-        <a href="#">Dashboard</a>
-        <a href="#">Users</a>
-        <a href="#">Logout</a>
+        <a @click="$router.push('/')" href="#">Dashboard</a>
+        <a @click="$router.push('/users')" href="#">Users</a>
+        <a v-on:click="logout" href="#">Logout</a>
     </div>
 </template>
 
 <script>
 export default {
-    name: "Header"
+    name: "Header",
+    methods: {
+        logout() {
+            localStorage.clear();
+            this.$router.push({ name: "LogIn" });
+        }
+    }
 }
 </script>
 
