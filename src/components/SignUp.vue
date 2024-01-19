@@ -35,6 +35,12 @@ export default {
                 this.$router.push({ name: "DashBoard" });
             }
         }
+    },
+    mounted() {
+        let user = localStorage.getItem('user_info');
+        if(user) {
+            this.$router.push({ name: "DashBoard" });
+        }
     }
 }
 </script>
