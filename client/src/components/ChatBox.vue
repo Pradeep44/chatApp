@@ -19,7 +19,7 @@ export default {
   },
   methods: {
     onSubmit(event) {
-      this.$emit("submit", event, this.text);
+      this.$emit("send", event, this.text);
       this.text = '';
     }
   }

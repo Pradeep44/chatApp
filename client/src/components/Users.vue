@@ -8,26 +8,26 @@
                 <th> Email </th>
                 <th> Action</th>
             </tr>
-            <tr v-for ="item in users" :key="item.id">
+            <tr v-for ="item in users" :key="item.userId">
                 <td>{{item.name}}</td>
                 <td>{{item.email}}</td>
                 <td>
-                    <button @click="showChat(item.uid)">Message</button>
+                    <button @click="showChat(item.userId)">Message</button>
                 </td>
             </tr>
         </div>
         <div class='messages' v-if="showPopUp === true">
             <Message
                     v-for='message in messages'
-                    :key='message.id'
+                    :key='message._id'
                     :class='["message", { right: message.isMine }]'
                     :dark='message.isMine'
                     :text='message.text'
-                    :author='message.author'
+                    :time='message.createdAt'
             />
             <ChatBox
                 class='chat-box'
-                @submit='onSubmit'
+                @send='onSubmit'
             />
         </div>
         <div v-else/>
@@ -39,6 +39,7 @@
 import ChatBox from './ChatBox.vue';
 import Header from './Header.vue';
 import Message from './Message.vue';
+import AuthService from '@/services/AuthService';
 
 export default {
     name: "Users",
@@ -50,79 +51,60 @@ export default {
     data() {
         return {
             showPopUp: false,
-            user: {
-                id: 1
-            },
-            users: [
-                {
-                id: 1,
-                email: 'user1@gmail.com',
-                name: 'User 1',
-                },
-                {
-                id: 2,
-                email: 'user2@gmail.com',
-                name: 'User 2',
-                },
-                {
-                id: 3,
-                email: 'user3@gmail.com',
-                name: 'User 3',
-                }
-            ],
-            messages: []
+            user: null,
+            users: [],
+            conversation: null,
+            messages: [],
+            selectedUser: null,
         }
     },
     methods: {
+        async getUsers() {
+            let user = localStorage.getItem('user_info');
+            this.user = JSON.parse(user);
+
+            const result = await AuthService.getUsers(this.user.id);
+            const users = result.data.users;
+            this.users = users;
+        },
         showChat(userId) {
-            console.log(userId);
-            this.getChat();
+            this.selectedUser = userId;
+            this.getChat(this.user?.id, userId);
             this.showPopUp = true;
         },
-        getChat() {
-            // listenChat((chat) => {//fetch messages from backend
-            const chat = [
-                {
-                id:1,
-                text: 'hi',
-                uid: 1,
-                author: 'User 1'
-                },
-                {
-                id:2,
-                text: 'hi',
-                uid: 2,
-                author: 'User 2'
-                },
-                {
-                id:3,
-                text: 'how are you',
-                uid: 1,
-                author: 'User 1'
-                },
-                {
-                id:4,
-                text: 'I m good what abt u??',
-                uid: 2,
-                author: 'User 2'
-                },
-            ];
-                this.messages = chat.map(m => ({
+        async getChat(user1, user2) {
+            const result = await AuthService.getConversation(user1, user2);
+            const conversationId = result.data.conversation._id;
+
+            const result2 = await AuthService.getMessages(conversationId);
+            const chat = result2.data.messages; 
+            this.conversation = conversationId;
+
+            this.messages = chat.map(m => ({
                 ...m,
-                isMine: m.uid && m.uid === this.user?.id
+                isMine: m.author && m.author === this.user?.id
                 }));
-            // });
         },
-        onSubmit(event, text) {
+         async onSubmit(event, text) {
             event.preventDefault();
-            
-            console.log('Message sent', text);
-            // sendMessage({//send messages to backend
-            //     text,
-            //     uid: this.user?.id,
-            //     author: this.user?.name
-            // });
-            // this.getChat();
+
+            await AuthService.sendMessage({
+                userId: this.user?.id,
+                conversationId: this.conversation,
+                message: text,
+            });
+
+            this.getChat(this.user?.id, this.selectedUser);
+        }
+    },
+    created() {
+        this.getUsers();
+    },
+    mounted() {
+        let user = localStorage.getItem('user_info');
+
+        if(!user) {
+            this.$router.push({ name: "Login" });
         }
     }
 }

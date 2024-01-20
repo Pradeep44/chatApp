@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const User = require('./schemas/User');
+const Conversation = require('./schemas/Conversation');
+const Message = require('./schemas/Message');
 
 const app = express();
 
@@ -63,6 +65,53 @@ app.post('/login', async(req,res) => {
             email: user.email
         },
     });
+})
+
+app.get("/users", async(req,res) => {
+    const usersArr = await User.find({ _id: { "$ne": req.query.userId } });
+    const users = usersArr.map(user => {
+        return {
+            userId: user.id,
+            name: user.name,
+            email: user.email,
+        }
+    })
+
+    return res.status(200).send({ users });
+})
+
+app.get("/conversation", async(req,res) => {
+    const user1Id = req.query.user1;
+    const user2Id = req.query.user2;
+    let conversation = await Conversation.findOne({ users:{
+        $all:[user1Id, user2Id]}});
+    if(!conversation) {
+        conversation = await Conversation.create({
+            users:[user1Id, user2Id],
+        });
+
+    }
+
+    return res.status(200).send({ conversation });
+})
+
+app.post('/messages/create', async(req,res) => {
+    const { userId, conversationId, message } = req.body;
+
+    await Message.create({
+        author: userId,
+        conversation: conversationId,
+        text:message,
+    })
+
+    return res.status(201).send({ message: "Message sent" });
+})
+
+app.get("/messages", async(req,res) => {
+    const conversationId = req.query.conversation;
+    let messages = await Message.find({ conversation: conversationId });
+
+    return res.status(200).send({ messages });
 })
 
 app.listen(3000, () => {

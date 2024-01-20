@@ -41,7 +41,7 @@ export default {
                 });
             
             if(result.status == 201 && result.data) {
-                localStorage.setItem("user_info", JSON.stringify(result.data));
+                localStorage.setItem("user_info", JSON.stringify(result.data.user));
                 this.$router.push({ name: "DashBoard" });
             } else {
                 alert(result.data.message);

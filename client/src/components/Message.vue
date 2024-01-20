@@ -11,7 +11,7 @@ export default {
   name: 'Message',
   props: [
     'text', // Content of the message
-    'user', // Author of the message
+    // 'user', // Author of the message
     'dark' // Background variant of the box
   ]
 }
