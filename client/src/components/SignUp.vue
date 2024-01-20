@@ -5,7 +5,10 @@
         <input type="text" v-model="name" placeholder="Enter Name" />
         <input type="email" v-model="email" placeholder="Enter Email" />
         <input type="password" v-model="password" placeholder="Enter Password" />
-        <button v-on:click="signUp">Sign Up</button>
+        <button
+            v-on:click="signUp"
+            :disabled="isInvalid()"
+        >Sign Up</button>
         <p>
             Already registered? <router-link to="/login">Login</router-link>
         </p>
@@ -13,6 +16,7 @@
 </template>
 
 <script>
+import AuthService from '@/services/AuthService';
 
 export default {
     name: "SignUp",
@@ -24,18 +28,23 @@ export default {
         }
     },
     methods: {
+        isInvalid() {
+            if(!this.name || !this.email || !this.password) return true;
+            return false;
+        },
         async signUp() {
-            const result = {
-                data:{
+            const result = await AuthService.register(
+                {
                     name: this.name,
                     email: this.email,
                     password: this.password,
-                },
-                status: 201,
-            }
-            if(result.status == 201) {
+                });
+            
+            if(result.status == 201 && result.data) {
                 localStorage.setItem("user_info", JSON.stringify(result.data));
                 this.$router.push({ name: "DashBoard" });
+            } else {
+                alert(result.data.message);
             }
         }
     },

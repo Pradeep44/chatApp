@@ -38,6 +38,10 @@ body {
     border: 1px solid;
 }
 
+.register button:disabled,  .login button:disabled{
+  opacity: 0.5;
+}
+
 .register button, .login button{
         width: 320px;
         height: 40px;

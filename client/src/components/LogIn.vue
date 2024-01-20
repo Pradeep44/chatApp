@@ -4,7 +4,10 @@
     <div class="login">
         <input type="email" v-model="email" placeholder="Enter Email" />
         <input type="password" v-model="password" placeholder="Enter Password" />
-        <button v-on:click="login">Login</button>
+        <button 
+            v-on:click="login"
+            :disabled="isInvalid()"
+        >Login</button>
         <p>
             Go to <router-link to="/signup">Sign Up</router-link>
         </p>
@@ -12,6 +15,7 @@
 </template>
 
 <script>
+import AuthService from '@/services/AuthService';
 
 export default {
     name: "LogIn",
@@ -22,18 +26,22 @@ export default {
         }
     },
     methods: {
-        login() {
-            const result = {
-                data:{
+        isInvalid() {
+            if(!this.email || !this.password) return true;
+            return false;
+        },
+        async login() {
+            const result = await AuthService.login(
+                {
                     email: this.email,
                     password: this.password,
-                },
-                status: 200,
-            }
+                });
 
             if(result.status == 200 && result.data) {
                 localStorage.setItem("user_info", JSON.stringify(result.data));
                 this.$router.push({ name: "DashBoard" });
+            } else {
+                alert(result.data.message);
             }
         }
     },
