@@ -81,18 +81,27 @@ export default {
             const chat = result2.data.messages; 
             this.conversation = conversationId;
 
-            this.messages = chat.map(m => ({
+            this.messages = await Promise.all(chat.map(async m => {
+                const result = await AuthService.decryptMessage({message: m.text });
+                const decryptedMessage = result.data.decryptedMessage;
+
+                return {
                 ...m,
+                text: decryptedMessage,
                 isMine: m.author && m.author === this.user?.id
-                }));
+                };
+            }));
         },
          async onSubmit(event, text) {
             event.preventDefault();
 
+            const result = await AuthService.encryptMessage({ message: text });
+            const encryptedMessage = result.data.encryptedMessage;
+
             await AuthService.sendMessage({
                 userId: this.user?.id,
                 conversationId: this.conversation,
-                message: text,
+                message: encryptedMessage,
             });
 
             this.getChat(this.user?.id, this.selectedUser);

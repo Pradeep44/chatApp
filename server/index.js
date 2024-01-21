@@ -7,6 +7,10 @@ const bcrypt = require('bcryptjs');
 const User = require('./schemas/User');
 const Conversation = require('./schemas/Conversation');
 const Message = require('./schemas/Message');
+const {
+    encryptMessage,
+    decryptMessage,
+} = require('./service/encryption');
 
 const app = express();
 
@@ -101,7 +105,7 @@ app.post('/messages/create', async(req,res) => {
     await Message.create({
         author: userId,
         conversation: conversationId,
-        text:message,
+        text: message,
     })
 
     return res.status(201).send({ message: "Message sent" });
@@ -112,6 +116,18 @@ app.get("/messages", async(req,res) => {
     let messages = await Message.find({ conversation: conversationId });
 
     return res.status(200).send({ messages });
+})
+
+app.post('/encryptMessage', async(req,res) => {
+    const message = req.body.message;
+    const encryptedMessage = encryptMessage(message);
+    return res.status(200).send({ encryptedMessage })
+})
+
+app.post('/decryptMessage', async(req,res) => {
+    const message = req.body.message;
+    const decryptedMessage = decryptMessage(message);
+    return res.status(200).send({ decryptedMessage })
 })
 
 app.listen(3000, () => {

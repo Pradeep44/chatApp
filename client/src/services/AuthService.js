@@ -93,5 +93,37 @@ export default {
                 status: err.response.status,
             };
         }) 
+    },
+
+    encryptMessage(payload) {
+        return Api().post(
+            'encryptMessage',
+            payload,
+            headers
+        ).then(response => {
+            return response;
+        })
+        .catch(err => {
+            return {
+                data: err.response.data,
+                status: err.response.status,
+            };
+        }) 
+    },
+
+    decryptMessage(payload) {
+        return Api().post(
+            'decryptMessage',
+            payload,
+            headers
+        ).then(response => {
+            return response;
+        })
+        .catch(err => {
+            return {
+                data: err.response.data,
+                status: err.response.status,
+            };
+        }) 
     }
 }
