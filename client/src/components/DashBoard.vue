@@ -1,6 +1,8 @@
 <template>
-<Header/>
-    <h1>Dashboard</h1>
+    <div>
+        <Header/>
+        <h1>Dashboard</h1>
+    </div>
 </template>
 
 <script>

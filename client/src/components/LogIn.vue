@@ -1,16 +1,18 @@
 <template>
-    <img class="logo" src="../assets/chat-app-logo.avif">
-    <h1>Login</h1>
-    <div class="login">
-        <input type="email" v-model="email" placeholder="Enter Email" />
-        <input type="password" v-model="password" placeholder="Enter Password" />
-        <button 
-            v-on:click="login"
-            :disabled="isInvalid()"
-        >Login</button>
-        <p>
-            Go to <router-link to="/signup">Sign Up</router-link>
-        </p>
+    <div>
+        <img class="logo" src="../assets/chat-app-logo.avif">
+        <h1>Login</h1>
+        <div class="login">
+            <input type="email" v-model="email" placeholder="Enter Email" />
+            <input type="password" v-model="password" placeholder="Enter Password" />
+            <button 
+                v-on:click="login"
+                :disabled="isInvalid()"
+            >Login</button>
+            <p>
+                Go to <router-link to="/signup">Sign Up</router-link>
+            </p>
+        </div>
     </div>
 </template>
 

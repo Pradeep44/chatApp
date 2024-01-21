@@ -1,38 +1,39 @@
 <template>
-<Header/>
-    <h1>Users</h1>
-    <div class="display">
-        <div class="users">
-            <tr>
-                <th> Name </th>
-                <th> Email </th>
-                <th> Action</th>
-            </tr>
-            <tr v-for ="item in users" :key="item.userId">
-                <td>{{item.name}}</td>
-                <td>{{item.email}}</td>
-                <td>
-                    <button @click="showChat(item.userId)">Message</button>
-                </td>
-            </tr>
+    <div>
+        <Header/>
+        <h1>Users</h1>
+        <div class="display">
+            <div class="users">
+                <tr>
+                    <th> Name </th>
+                    <th> Email </th>
+                    <th> Action</th>
+                </tr>
+                <tr v-for ="item in users" :key="item.userId">
+                    <td>{{item.name}}</td>
+                    <td>{{item.email}}</td>
+                    <td>
+                        <button @click="showChat(item.userId)">Message</button>
+                    </td>
+                </tr>
+            </div>
+            <div class='messages' v-if="showPopUp === true">
+                <Message
+                        v-for='message in messages'
+                        :key='message._id'
+                        :class='["message", { right: message.isMine }]'
+                        :dark='message.isMine'
+                        :text='message.text'
+                        :time='message.createdAt'
+                />
+                <ChatBox
+                    class='chat-box'
+                    @send='onSubmit'
+                />
+            </div>
+            <div v-else/>
         </div>
-        <div class='messages' v-if="showPopUp === true">
-            <Message
-                    v-for='message in messages'
-                    :key='message._id'
-                    :class='["message", { right: message.isMine }]'
-                    :dark='message.isMine'
-                    :text='message.text'
-                    :time='message.createdAt'
-            />
-            <ChatBox
-                class='chat-box'
-                @send='onSubmit'
-            />
-        </div>
-        <div v-else/>
     </div>
-
 </template>
 
 <script>
