@@ -3,10 +3,15 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const authenticate = require('./middleware/authenticate');
 
 const User = require('./schemas/User');
 const Conversation = require('./schemas/Conversation');
 const Message = require('./schemas/Message');
+
+const getToken = require('./service/getToken');
 const {
     encryptMessage,
     decryptMessage,
@@ -43,12 +48,10 @@ app.post('/signup', async (req,res) => {
         password
     })
 
-    return res.status(201).send({message: "User registered successfully", 
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email
-        },
+    const token = getToken(user._id);
+    return res.status(201).send({
+        message: "User registered successfully",
+        token,
     });
 })
 
@@ -62,16 +65,25 @@ app.post('/login', async(req,res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if(!isPasswordValid) return res.status(400).send({ message: "Incorrect password" });
 
-    return res.status(200).send({message: "Logged in successfully", 
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email
-        },
+    const token = getToken(user._id);
+    return res.status(200).send({
+        message: "Logged in successfully",
+        token,
     });
 })
 
-app.get("/users", async(req,res) => {
+app.get('/userInfo', authenticate, async (req, res) => {
+    const userId = req.userId;
+    const user = await User.findOne({ _id: userId });
+    
+    return res.status(200).send({
+        id: user.id,
+        name: user.name,
+        email: user.email
+    });
+})
+
+app.get("/users", authenticate, async(req,res) => {
     const usersArr = await User.find({ _id: { "$ne": req.query.userId } });
     const users = usersArr.map(user => {
         return {
@@ -84,7 +96,7 @@ app.get("/users", async(req,res) => {
     return res.status(200).send({ users });
 })
 
-app.get("/conversation", async(req,res) => {
+app.get("/conversation", authenticate, async(req,res) => {
     const user1Id = req.query.user1;
     const user2Id = req.query.user2;
     let conversation = await Conversation.findOne({ users:{
@@ -99,7 +111,7 @@ app.get("/conversation", async(req,res) => {
     return res.status(200).send({ conversation });
 })
 
-app.post('/messages/create', async(req,res) => {
+app.post('/messages/create', authenticate, async(req,res) => {
     const { userId, conversationId, message } = req.body;
 
     await Message.create({
@@ -111,20 +123,20 @@ app.post('/messages/create', async(req,res) => {
     return res.status(201).send({ message: "Message sent" });
 })
 
-app.get("/messages", async(req,res) => {
+app.get("/messages", authenticate, async(req,res) => {
     const conversationId = req.query.conversation;
     let messages = await Message.find({ conversation: conversationId });
 
     return res.status(200).send({ messages });
 })
 
-app.post('/encryptMessage', async(req,res) => {
+app.post('/encryptMessage', authenticate, async(req,res) => {
     const message = req.body.message;
     const encryptedMessage = encryptMessage(message);
     return res.status(200).send({ encryptedMessage })
 })
 
-app.post('/decryptMessage', async(req,res) => {
+app.post('/decryptMessage', authenticate, async(req,res) => {
     const message = req.body.message;
     const decryptedMessage = decryptMessage(message);
     return res.status(200).send({ decryptedMessage })
