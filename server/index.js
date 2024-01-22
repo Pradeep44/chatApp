@@ -31,13 +31,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.post('/signup', (req,res) => {
+app.post('/signup', async (req,res) => {
     const { name, email, password } = req.body;
     if(!name || !email || !password) {
         return res.status(400).send({message: "Name/email/password required"});
     }
 
-    const user = User.create({
+    const user = await User.create({
         name,
         email, 
         password
