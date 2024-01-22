@@ -35,6 +35,38 @@
 //     const decryptedCodePoints = message.map(charCode => modExp(charCode, modulus, key));
 //     return codePointsToString(decryptedCodePoints);
 // }
+// Function to encrypt a message using Caesar Cipher
+// function encrypt(message, shift) {
+//     let encryptedMessage = "";
+  
+//     for (let i = 0; i < message.length; i++) {
+//       let char = message[i];
+  
+//       if (char.match(/[a-z]/i)) {
+//         // Determine if the character is uppercase or lowercase
+//         let isUpperCase = char === char.toUpperCase();
+  
+//         // Shift the character code
+//         let charCode = char.charCodeAt(0);
+//         charCode = (charCode - (isUpperCase ? 65 : 97) + shift) % 26 + (isUpperCase ? 65 : 97);
+  
+//         // Convert back to a character and append to the result
+//         encryptedMessage += String.fromCharCode(charCode);
+//       } else {
+//         // If the character is not a letter, keep it unchanged
+//         encryptedMessage += char;
+//       }
+//     }
+  
+//     return encryptedMessage;
+//   }
+  
+//   // Function to decrypt a message encrypted with Caesar Cipher
+// function decrypt(encryptedMessage, shift) {
+//     // To decrypt, simply use the negative shift
+//     return encrypt(encryptedMessage, -shift);
+//   }
+
 const aes256 = require('aes256');
 
 function encryptMessage(message) {
