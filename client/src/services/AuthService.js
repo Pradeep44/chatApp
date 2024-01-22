@@ -6,7 +6,7 @@ export default {
         return Api().post(
             'signup',
             credentials,
-            headers
+            { headers }
         ).then(response => {
             return response;
         })
@@ -22,7 +22,7 @@ export default {
         return Api().post(
             'login',
             credentials,
-            headers
+            { headers }
         ).then(response => {
             return response;
         })
@@ -34,10 +34,37 @@ export default {
         }) 
     },
 
-    getUsers(credentials) {
+    getUser(token) {
+        return Api().get(
+            `userInfo`,
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
+        ).then(response => {
+            return response;
+        })
+        .catch(err => {
+            return {
+                data: err.response.data,
+                status: err.response.status,
+            };
+        }) 
+    },
+
+    getUsers(credentials, token) {
         return Api().get(
             `users?userId=${credentials}`,
-            headers,
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
         ).then(response => {
             return response;
         })
@@ -49,10 +76,16 @@ export default {
         }) 
     },
 
-    getConversation(user1, user2) {
+    getConversation(user1, user2, token) {
         return Api().get(
             `conversation?user1=${user1}&&user2=${user2}`,
-            headers,
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
         ).then(response => {
             return response;
         })
@@ -64,10 +97,16 @@ export default {
         }) 
     },
 
-    getMessages(conversationId) {
+    getMessages(conversationId, token) {
         return Api().get(
             `messages?conversation=${conversationId}`,
-            headers,
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
         ).then(response => {
             return response;
         })
@@ -79,11 +118,17 @@ export default {
         }) 
     },
 
-    sendMessage(payload) {
+    sendMessage(payload, token) {
         return Api().post(
             'messages/create',
             payload,
-            headers
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
         ).then(response => {
             return response;
         })
@@ -95,11 +140,17 @@ export default {
         }) 
     },
 
-    encryptMessage(payload) {
+    encryptMessage(payload, token) {
         return Api().post(
             'encryptMessage',
             payload,
-            headers
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
         ).then(response => {
             return response;
         })
@@ -111,11 +162,17 @@ export default {
         }) 
     },
 
-    decryptMessage(payload) {
+    decryptMessage(payload, token) {
         return Api().post(
             'decryptMessage',
             payload,
-            headers
+            {
+                headers:
+                {
+                    ...headers,
+                    'Authorization': token,
+                }
+            },
         ).then(response => {
             return response;
         })

@@ -14,9 +14,9 @@ export default {
         Header,
     },
     mounted() {
-        let user = localStorage.getItem('user_info');
-        if(!user) {
-            this.$router.push({ name: "Login" });
+        let token = localStorage.getItem('token');
+        if(!token) {
+            this.$router.push({ name: "LogIn" });
         }
     }
 }

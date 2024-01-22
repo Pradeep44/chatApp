@@ -40,7 +40,7 @@ export default {
                 });
 
             if(result.status == 200 && result.data) {
-                localStorage.setItem("user_info", JSON.stringify(result.data.user));
+                localStorage.setItem("token", result.data.token);
                 this.$router.push({ name: "DashBoard" });
             } else {
                 alert(result.data.message);
@@ -48,8 +48,8 @@ export default {
         }
     },
     mounted() {
-        let user = localStorage.getItem('user_info');
-        if(user) {
+        let token = localStorage.getItem('token');
+        if(token) {
             this.$router.push({ name: "DashBoard" });
         }
     }

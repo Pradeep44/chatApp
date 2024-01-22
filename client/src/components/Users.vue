@@ -61,12 +61,24 @@ export default {
     },
     methods: {
         async getUsers() {
-            let user = localStorage.getItem('user_info');
-            this.user = JSON.parse(user);
+            let token = localStorage.getItem('token');
+            const result = await AuthService.getUser(token);
 
-            const result = await AuthService.getUsers(this.user.id);
-            const users = result.data.users;
-            this.users = users;
+            if(result.status === 401) {
+                localStorage.clear();
+                this.$router.push({ name: "LogIn" });
+            } else {
+                this.user = result.data;
+                const result1 = await AuthService.getUsers(this.user.id, token);
+
+                if(result1.status === 401) {
+                    localStorage.clear();
+                    this.$router.push({ name: "LogIn" });
+                } else {
+                    const users = result1.data.users;
+                    this.users = users;
+                }
+            }
         },
         showChat(userId) {
             this.selectedUser = userId;
@@ -74,47 +86,67 @@ export default {
             this.showPopUp = true;
         },
         async getChat(user1, user2) {
-            const result = await AuthService.getConversation(user1, user2);
-            const conversationId = result.data.conversation._id;
+            let token = localStorage.getItem('token');
+            const result = await AuthService.getConversation(user1, user2, token);
 
-            const result2 = await AuthService.getMessages(conversationId);
-            const chat = result2.data.messages; 
-            this.conversation = conversationId;
+            if(result.status === 401) {
+                localStorage.clear();
+                this.$router.push({ name: "LogIn" });
+            } else {
+                const conversationId = result.data.conversation._id;
+                const result2 = await AuthService.getMessages(conversationId, token);
+                if(result.status === 401) {
+                    localStorage.clear();
+                    this.$router.push({ name: "LogIn" });
+                } else {
+                    const chat = result2.data.messages; 
+                    this.conversation = conversationId;
+                    this.messages = await Promise.all(chat.map(async m => {
+                        const result = await AuthService.decryptMessage({message: m.text }, token);
+                        const decryptedMessage = result.data.decryptedMessage;
 
-            this.messages = await Promise.all(chat.map(async m => {
-                const result = await AuthService.decryptMessage({message: m.text });
-                const decryptedMessage = result.data.decryptedMessage;
-
-                return {
-                ...m,
-                text: decryptedMessage,
-                isMine: m.author && m.author === this.user?.id
-                };
-            }));
+                        return {
+                        ...m,
+                        text: decryptedMessage,
+                        isMine: m.author && m.author === this.user?.id
+                        };
+                    }));
+                }
+            }
         },
          async onSubmit(event, text) {
             event.preventDefault();
-
-            const result = await AuthService.encryptMessage({ message: text });
-            const encryptedMessage = result.data.encryptedMessage;
-
-            await AuthService.sendMessage({
-                userId: this.user?.id,
-                conversationId: this.conversation,
-                message: encryptedMessage,
-            });
-
-            this.getChat(this.user?.id, this.selectedUser);
+            let token = localStorage.getItem('token');
+            let result = await AuthService.encryptMessage({ message: text }, token);
+            if(result.status === 401) {
+                localStorage.clear();
+                this.$router.push({ name: "LogIn" });
+            } else {
+                const encryptedMessage = result.data.encryptedMessage;
+                let result1 = await AuthService.sendMessage({
+                    userId: this.user?.id,
+                    conversationId: this.conversation,
+                    message: encryptedMessage,
+                },
+                token,
+                );
+                if(result1.status === 401) {
+                    localStorage.clear();
+                    this.$router.push({ name: "LogIn" });
+                } else {
+                    this.getChat(this.user?.id, this.selectedUser);
+                }
+            }
         }
     },
     created() {
         this.getUsers();
     },
     mounted() {
-        let user = localStorage.getItem('user_info');
+        let token = localStorage.getItem('token');
 
-        if(!user) {
-            this.$router.push({ name: "Login" });
+        if(!token) {
+            this.$router.push({ name: "LogIn" });
         }
     }
 }
